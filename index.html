@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Marker Demo</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9; 
+            color: #333;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+        }
+
+        input, button {
+            margin-top: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #e7e7e8; 
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d1d1d2;
+        }
+
+        #output {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            background-color: #fff;
+        }
+
+        #inkLevelContainer {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        #inkLevel {
+            color: #6a5acd; 
+        }
+    </style>
+</head>
+<body>
+    <div id="inkLevelContainer">Уровень чернил: <span id="inkLevel">100</span>%</div>
+
+    <label for="colorPicker">Выберите цвет маркера:</label>
+    <input type="color" id="colorPicker" value="#000000">
+
+    <label for="textToPrint">Текст для печати:</label>
+    <input type="text" id="textToPrint">
+
+    <button onclick="printText()">Печатать текст</button>
+    <button onclick="refillMarker()">Заправить маркер</button>
+    <button onclick="clearText()">Очистить текст</button>
+
+
+    <div id="output"></div>
+
+    <script>
+        let marker = {
+            color: document.getElementById('colorPicker').value,
+            inkAmount: 100,
+            print: function(text) {
+                let content = '';
+                for (const char of text) {
+                    if (this.inkAmount <= 0) {
+                        alert('Чернила в маркере закончились. Пожалуйста, заправьте маркер.');
+                        break;
+                    }
+                    if (char !== ' ') this.inkAmount -= 0.5;
+                    content += char;
+                }
+                this.updateInkLevel();
+                return content;
+            },
+            refill: function(inkAmount = 100) {
+                this.inkAmount = inkAmount;
+                this.updateInkLevel();
+                alert('Маркер успешно заправлен!');
+            },
+            updateInkLevel: function() {
+                document.getElementById('inkLevel').innerText = this.inkAmount.toFixed(1);
+            }
+        };
+    
+        function printText() {
+    const text = document.getElementById('textToPrint').value;
+    const printedText = marker.print(text);
+    const outputDiv = document.getElementById('output');
+    outputDiv.innerHTML += `<span style="color: ${marker.color}">${printedText}</span><br>`;
+    document.getElementById('textToPrint').value = text.substring(printedText.length);
+}
+
+    
+        function refillMarker() {
+            marker.refill();
+        }
+    
+        function clearText() {
+            document.getElementById('textToPrint').value = ''; 
+            document.getElementById('output').innerHTML = ''; 
+        }
+    
+        document.getElementById('colorPicker').addEventListener('change', function() {
+            marker.color = this.value;
+        });
+    </script>
+    
+    
+</body>
+</html>
