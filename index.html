@@ -69,55 +69,65 @@
     <div id="output"></div>
 
     <script>
-        let marker = {
-            color: document.getElementById('colorPicker').value,
-            inkAmount: 100,
-            print: function(text) {
-                let content = '';
-                for (const char of text) {
-                    if (this.inkAmount <= 0) {
-                        alert('Чернила в маркере закончились. Пожалуйста, заправьте маркер.');
-                        break;
-                    }
-                    if (char !== ' ') this.inkAmount -= 0.5;
-                    content += char;
-                }
-                this.updateInkLevel();
-                return content;
-            },
-            refill: function(inkAmount = 100) {
-                this.inkAmount = inkAmount;
-                this.updateInkLevel();
-                alert('Маркер успешно заправлен!');
-            },
-            updateInkLevel: function() {
-                document.getElementById('inkLevel').innerText = this.inkAmount.toFixed(1);
-            }
-        };
-    
-        function printText() {
-    const text = document.getElementById('textToPrint').value;
-    const printedText = marker.print(text);
-    const outputDiv = document.getElementById('output');
-    outputDiv.innerHTML += `<span style="color: ${marker.color}">${printedText}</span><br>`;
-    document.getElementById('textToPrint').value = text.substring(printedText.length);
-}
+        function BasicMarker(color, inkAmount) {
+            this.color = color;
+            this.inkAmount = inkAmount;
+        }
 
-    
+        BasicMarker.prototype.print = function(text) {
+            let content = '';
+            for (const char of text) {
+                if (this.inkAmount <= 0) {
+                    alert('Чернила в маркере закончились. Пожалуйста, заправьте маркер.');
+                    break;
+                }
+                if (char !== ' ') this.inkAmount -= 0.5;
+                content += char;
+            }
+            this.updateInkLevel();
+            return content;
+        };
+
+        BasicMarker.prototype.updateInkLevel = function() {
+            document.getElementById('inkLevel').innerText = this.inkAmount.toFixed(1);
+        };
+
+        function RefillableMarker(color, inkAmount) {
+            BasicMarker.call(this, color, inkAmount);
+        }
+
+        RefillableMarker.prototype = Object.create(BasicMarker.prototype);
+        RefillableMarker.prototype.constructor = RefillableMarker;
+
+        RefillableMarker.prototype.refill = function(inkAmount = 100) {
+            this.inkAmount = inkAmount;
+            this.updateInkLevel();
+            alert('Маркер успешно заправлен!');
+        };
+
+        let marker = new RefillableMarker(document.getElementById('colorPicker').value, 100);
+
+        function printText() {
+            const text = document.getElementById('textToPrint').value;
+            const printedText = marker.print(text);
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML += `<span style="color: ${marker.color}">${printedText}</span><br>`;
+            document.getElementById('textToPrint').value = text.substring(printedText.length);
+        }
+
         function refillMarker() {
             marker.refill();
         }
-    
+
         function clearText() {
-            document.getElementById('textToPrint').value = ''; 
-            document.getElementById('output').innerHTML = ''; 
+            document.getElementById('textToPrint').value = '';
+            document.getElementById('output').innerHTML = '';
         }
-    
+
         document.getElementById('colorPicker').addEventListener('change', function() {
             marker.color = this.value;
         });
     </script>
-    
     
 </body>
 </html>
